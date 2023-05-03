@@ -1,5 +1,6 @@
 import { Box, Button, Stack } from "@mui/material";
 import React, { useReducer } from "react";
+import ProductItem from "./ProductItem";
 type DiscountTypes = "flat" | "%off";
 interface Product {
   id: string;
@@ -46,14 +47,23 @@ function productReducer(
   }
 }
 export default function ProductTable() {
-  const [products, dispatch] = useReducer(productReducer, initialState);
+  const [state, dispatch] = useReducer(productReducer, initialState);
   function addProduct() {
     dispatch({
       type: "add-product",
     });
   }
   return (
-    <Stack sx={{ mt: 3, width: "100%" }}>
+    <Stack
+      gap={2}
+      sx={{
+        mt: 3,
+        width: "fit-content",
+        height: "100%",
+
+        minWidth: "422.467px",
+      }}
+    >
       <Stack sx={{ width: "100%" }} direction="row">
         <div
           style={{
@@ -72,19 +82,41 @@ export default function ProductTable() {
             flex: 1,
             textAlign: "left",
             paddingLeft: "1rem",
+
             fontWeight: 600,
           }}
         >
           Discount
         </div>
       </Stack>
-      {/* <>
-              {products.map((p, idx) => (
-                <ProductItem p={p} idx={idx} dispatch={dispatch} />
-              ))}
-            </> */}
+      <>
+        {state.products.map((p, idx) => (
+          <ProductItem />
+        ))}
+      </>
 
-      <Button onClick={addProduct}>Add Product</Button>
+      <Button
+        variant="outlined"
+        sx={{
+          alignSelf: "flex-end",
+          justifySelf: "center",
+
+          width: "fit-content",
+          textTransform: "none",
+          fontSize: "14px",
+          fontWeight: 600,
+          height: 48,
+          px: "54px",
+          borderColor: (theme) => theme.palette.primary.main,
+          borderWidth: "2px",
+          ":hover": {
+            borderWidth: "2px",
+          },
+        }}
+        onClick={addProduct}
+      >
+        Add Product
+      </Button>
     </Stack>
   );
 }
