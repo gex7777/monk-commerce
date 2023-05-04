@@ -7,77 +7,97 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 
 import DialogTitle from "@mui/material/DialogTitle";
-import { Box, IconButton, styled } from "@mui/material";
-import { ReactNode } from "react";
+import { IconButton } from "@mui/material";
+import { useState } from "react";
 import { ReactComponent as CloseIcon } from "../assets/close-icon.svg";
 import SearchField from "./SearchField";
+import { useAsync } from "react-async-hook";
 interface Props {
-  children: ReactNode;
+  open: boolean;
+  setOpen: (s: boolean) => void;
 }
-export default function FormDialog({ children }: Props) {
-  const [open, setOpen] = React.useState(false);
+const fetchProducts = async (query: string) =>
+  (
+    await fetch(
+      `https://stageapibc.monkcommerce.app/admin/shop/product?search=${query}&page=1`
+    )
+  ).json();
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+export default function FormDialog({ open, setOpen }: Props) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const asyncProducts = useAsync(fetchProducts, [searchQuery]);
+  console.log(asyncProducts.result);
 
   const handleClose = () => {
     setOpen(false);
   };
 
   return (
-    <Box>
-      <Box
-        sx={{
-          p: 1,
-          height: "100%",
-          ":hover": {
-            background:
-              "linear-gradient(0deg, rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.07)),linear-gradient(0deg, #FFFFFF, #FFFFFF)",
-          },
-        }}
-        onClick={handleClickOpen}
+    <Dialog
+      scroll={"paper"}
+      onClose={handleClose}
+      aria-labelledby="customized-dialog-title"
+      open={open}
+    >
+      <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
+        Select Products
+      </BootstrapDialogTitle>
+      <DialogContent
+        sx={{ borderBottom: "0px", p: 0, minHeight: "49px" }}
+        dividers
       >
-        {children}
-      </Box>
-      <Dialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-      >
-        <BootstrapDialogTitle
-          id="customized-dialog-title"
-          onClose={handleClose}
-        >
-          Select Products
-        </BootstrapDialogTitle>
-        <DialogContent sx={{ borderBottom: "0px", p: 0 }} dividers>
-          <SearchField />
-        </DialogContent>
-        <DialogContent dividers>
-          <Typography gutterBottom>
-            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-            ac consectetur ac, vestibulum at eros.
-          </Typography>
-          <Typography gutterBottom>
-            Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
-            Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor
-            auctor.
-          </Typography>
-          <Typography gutterBottom>
-            Aenean lacinia bibendum nulla sed consectetur. Praesent commodo
-            cursus magna, vel scelerisque nisl consectetur et. Donec sed odio
-            dui. Donec ullamcorper nulla non metus auctor fringilla.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose}>
-            Save changes
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        <SearchField setSearchQuery={(q: string) => setSearchQuery(q)} />
+      </DialogContent>
+      <DialogContent dividers>
+        <Typography gutterBottom>
+          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
+          consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit
+          amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
+          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
+          consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit
+          amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
+          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
+          consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit
+          amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
+          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+          Cras matti Cras mattis consectetur purus sit amet fermentum. Cras
+          justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo
+          risus, porta ac consectetur ac, vestibulum at eros. Cras mattis
+          consectetur purus sit amet fermentum. Cras justo odio, dapibus ac
+          facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur
+          ac, vestibulum at eros. Cras mattis consectetur purus sit amet
+          fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
+          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
+          consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit
+          amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
+          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
+          consectetur ac, vestibulum at eros. Cras matti
+        </Typography>
+        <Typography gutterBottom>
+          Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
+          Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.
+        </Typography>
+        <Typography gutterBottom>
+          Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus
+          magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec
+          ullamcorper nulla non metus auctor fringilla.
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button autoFocus onClick={handleClose}>
+          Save changes
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
