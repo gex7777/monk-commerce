@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { ReactComponent as DragIcon } from "../assets/drag-icon.svg";
 import { ReactComponent as EditIcon } from "../assets/edit-icon.svg";
 import Popup from "./Popup";
+import StyledButton from "./StyledButton";
 export default function ProductItem() {
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => {
@@ -56,17 +57,7 @@ export default function ProductItem() {
           </Box>
           {open && <Popup open={open} setOpen={setOpen} />}
         </Paper>
-        <Button
-          variant="contained"
-          sx={{
-            textTransform: "none",
-            boxShadow: "none",
-            height: "32px",
-            px: "25px",
-          }}
-        >
-          Add Discount
-        </Button>
+        <StyledButton text="Add Discount" />
       </Stack>
     </>
   );
