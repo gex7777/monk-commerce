@@ -11,13 +11,16 @@ const Search = styled("div")({
   alignItems: "center",
   gap: "13px",
 });
-
-export default function SearchField() {
+interface Props {
+  setSearchQuery: (text: string) => void;
+}
+export default function SearchField({ setSearchQuery }: Props) {
   return (
     <Search>
       <SearchIcon />
 
       <InputBase
+        onChange={(e) => setSearchQuery(e.target.value)}
         autoFocus
         placeholder="Search product"
         inputProps={{ "aria-label": "search" }}

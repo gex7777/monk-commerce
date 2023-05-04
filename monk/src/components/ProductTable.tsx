@@ -81,7 +81,7 @@ export default function ProductTable() {
             fontSize: "14px",
             flex: 1,
             textAlign: "left",
-            paddingLeft: "1rem",
+            paddingLeft: "6rem",
 
             fontWeight: 600,
           }}
