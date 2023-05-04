@@ -10,6 +10,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { Box, IconButton, styled } from "@mui/material";
 import { ReactNode } from "react";
 import { ReactComponent as CloseIcon } from "../assets/close-icon.svg";
+import SearchField from "./SearchField";
 interface Props {
   children: ReactNode;
 }
@@ -39,7 +40,7 @@ export default function FormDialog({ children }: Props) {
       >
         {children}
       </Box>
-      <BootstrapDialog
+      <Dialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
         open={open}
@@ -50,9 +51,10 @@ export default function FormDialog({ children }: Props) {
         >
           Select Products
         </BootstrapDialogTitle>
+        <DialogContent sx={{ borderBottom: "0px", p: 0 }} dividers>
+          <SearchField />
+        </DialogContent>
         <DialogContent dividers>
-          <DialogContent dividers></DialogContent>
-
           <Typography gutterBottom>
             Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
             dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
@@ -74,19 +76,10 @@ export default function FormDialog({ children }: Props) {
             Save changes
           </Button>
         </DialogActions>
-      </BootstrapDialog>
+      </Dialog>
     </Box>
   );
 }
-
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialogContent-root": {
-    padding: theme.spacing(2),
-  },
-  "& .MuiDialogActions-root": {
-    padding: theme.spacing(1),
-  },
-}));
 
 export interface DialogTitleProps {
   id: string;
@@ -99,21 +92,21 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
 
   return (
     <DialogTitle
-      sx={{ m: 0, p: 2, fontWeight: 600, fontSize: "18px" }}
+      sx={{
+        m: 0,
+        px: "28px",
+        py: "11.5px",
+        maxHeight: "50px",
+        fontWeight: 600,
+        fontSize: "18px",
+        justifyContent: "space-between",
+        display: "flex",
+      }}
       {...other}
     >
       {children}
       {onClose ? (
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
+        <IconButton aria-label="close" onClick={onClose} sx={{ p: 0 }}>
           <CloseIcon />
         </IconButton>
       ) : null}
