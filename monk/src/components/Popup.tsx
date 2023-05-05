@@ -1,6 +1,4 @@
-import Typography from "@mui/material/Typography";
 import * as React from "react";
-import Button from "@mui/material/Button";
 
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -33,6 +31,14 @@ export default function FormDialog({ open, setOpen }: Props) {
       aria-labelledby="customized-dialog-title"
       open={open}
       fullWidth
+      sx={{
+        "& .MuiDialog-container": {
+          "& .MuiPaper-root": {
+            width: "663px",
+            // Set your width here
+          },
+        },
+      }}
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
         Select Products
@@ -43,7 +49,7 @@ export default function FormDialog({ open, setOpen }: Props) {
       >
         <SearchField setSearchQuery={(q: string) => setInputText(q)} />
       </DialogContent>
-      <DialogContent sx={{ height: "800px" }} dividers>
+      <DialogContent sx={{ p: 0, m: 0, height: "612px" }} dividers>
         {search.loading && (
           <Box
             sx={{
