@@ -13,9 +13,11 @@
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",
     "@mui/material": "^5.12.2",
+    "awesome-debounce-promise": "^2.1.0",
     "react": "^18.2.0",
     "react-async-hook": "^4.0.0",
     "react-dom": "^18.2.0",
+    "use-constant": "^1.1.1",
     "vite-plugin-svgr": "^2.4.0"
   },
   "devDependencies": {
