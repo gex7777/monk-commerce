@@ -9,6 +9,7 @@ export interface Product {
   images?: ImagesEntityOrImage[] | null;
   admin_graphql_api_id: string;
   status: string;
+  checked?: boolean;
 }
 export interface OptionsEntity {
   product_id: number;
@@ -25,6 +26,7 @@ export interface VariantsEntity {
   inventory_quantity: number;
   admin_graphql_api_id: string;
   option_values?: OptionValuesEntity[] | null;
+  checked?: boolean;
 }
 export interface OptionValuesEntity {
   id: number;
