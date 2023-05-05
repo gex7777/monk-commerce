@@ -65,8 +65,8 @@ export default function ProductTable() {
       }}
     >
       <Stack sx={{ width: "100%" }} direction="row">
-        <div
-          style={{
+        <Box
+          sx={{
             fontSize: "14px",
             flex: 1,
             textAlign: "left",
@@ -75,9 +75,9 @@ export default function ProductTable() {
           }}
         >
           Product
-        </div>
-        <div
-          style={{
+        </Box>
+        <Box
+          sx={{
             fontSize: "14px",
             flex: 1,
             textAlign: "left",
@@ -87,11 +87,11 @@ export default function ProductTable() {
           }}
         >
           Discount
-        </div>
+        </Box>
       </Stack>
       <>
         {state.products.map((p, idx) => (
-          <ProductItem />
+          <ProductItem key={p.id} />
         ))}
       </>
 

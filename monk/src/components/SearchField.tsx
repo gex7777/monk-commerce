@@ -24,7 +24,7 @@ export default function SearchField({ setSearchQuery }: Props) {
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Search product"
         inputProps={{ "aria-label": "search" }}
-        sx={{ fontSize: "14px" }}
+        sx={{ fontSize: "14px", width: "100%" }}
       />
     </Search>
   );
