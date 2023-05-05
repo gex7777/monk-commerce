@@ -20,8 +20,8 @@ export default function SearchField({ setSearchQuery }: Props) {
       <SearchIcon />
 
       <InputBase
-        onChange={(e) => setSearchQuery(e.target.value)}
         autoFocus
+        onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Search product"
         inputProps={{ "aria-label": "search" }}
         sx={{ fontSize: "14px" }}

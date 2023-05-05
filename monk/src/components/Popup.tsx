@@ -7,95 +7,60 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 
 import DialogTitle from "@mui/material/DialogTitle";
-import { IconButton } from "@mui/material";
+import { Box, CircularProgress, IconButton } from "@mui/material";
 import { useState } from "react";
 import { ReactComponent as CloseIcon } from "../assets/close-icon.svg";
 import SearchField from "./SearchField";
-import { useAsync } from "react-async-hook";
+import StyledButton from "./StyledButton";
+import { useSearchProducts } from "../hooks/useFetchProducts";
+import TreeList from "./TreeList";
 interface Props {
   open: boolean;
   setOpen: (s: boolean) => void;
 }
-const fetchProducts = async (query: string) =>
-  (
-    await fetch(
-      `https://stageapibc.monkcommerce.app/admin/shop/product?search=${query}&page=1`
-    )
-  ).json();
 
 export default function FormDialog({ open, setOpen }: Props) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const asyncProducts = useAsync(fetchProducts, [searchQuery]);
-  console.log(asyncProducts.result);
+  const { inputText, setInputText, search } = useSearchProducts();
 
   const handleClose = () => {
     setOpen(false);
   };
-
+  console.log(search);
   return (
     <Dialog
       scroll={"paper"}
       onClose={handleClose}
       aria-labelledby="customized-dialog-title"
       open={open}
+      fullWidth
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
         Select Products
       </BootstrapDialogTitle>
       <DialogContent
-        sx={{ borderBottom: "0px", p: 0, minHeight: "49px" }}
+        sx={{ borderBottom: "0px", p: 0, minHeight: "50px" }}
         dividers
       >
-        <SearchField setSearchQuery={(q: string) => setSearchQuery(q)} />
+        <SearchField setSearchQuery={(q: string) => setInputText(q)} />
       </DialogContent>
-      <DialogContent dividers>
-        <Typography gutterBottom>
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit
-          amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
-          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit
-          amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
-          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit
-          amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
-          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-          Cras matti Cras mattis consectetur purus sit amet fermentum. Cras
-          justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo
-          risus, porta ac consectetur ac, vestibulum at eros. Cras mattis
-          consectetur purus sit amet fermentum. Cras justo odio, dapibus ac
-          facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur
-          ac, vestibulum at eros. Cras mattis consectetur purus sit amet
-          fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
-          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit
-          amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget
-          quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros. Cras matti
-        </Typography>
-        <Typography gutterBottom>
-          Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
-          Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.
-        </Typography>
-        <Typography gutterBottom>
-          Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus
-          magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec
-          ullamcorper nulla non metus auctor fringilla.
-        </Typography>
+      <DialogContent sx={{ height: "800px" }} dividers>
+        {search.loading && (
+          <Box
+            sx={{
+              display: "flex",
+              height: "100%",
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+        {!!search.result && <TreeList products={search.result} />}
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClose}>
-          Save changes
-        </Button>
+        <StyledButton text="Add" />
       </DialogActions>
     </Dialog>
   );
