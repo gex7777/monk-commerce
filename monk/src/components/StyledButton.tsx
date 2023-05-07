@@ -1,12 +1,12 @@
-import { Button } from "@mui/material";
+import { Button, ButtonProps } from "@mui/material";
 import React from "react";
-interface Props {
+interface Props extends ButtonProps {
   text: string;
 }
-export default function StyledButton({ text }: Props) {
+export default function StyledButton({ text, ...others }: Props) {
   return (
     <Button
-      variant="contained"
+      {...others}
       sx={{
         textTransform: "none",
         boxShadow: "none",
