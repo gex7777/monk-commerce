@@ -1,17 +1,16 @@
 import * as React from "react";
-
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-
 import DialogTitle from "@mui/material/DialogTitle";
-import { Box, CircularProgress, IconButton } from "@mui/material";
-import { useState } from "react";
+import { Box, CircularProgress, IconButton, colors } from "@mui/material";
 import { ReactComponent as CloseIcon } from "../assets/close-icon.svg";
 import SearchField from "./SearchField";
 import StyledButton from "./StyledButton";
 import { useSearchProducts } from "../hooks/useFetchProducts";
 import TreeList from "./TreeList";
+import { useState } from "react";
+import { Product } from "../ulits/interfaces";
 interface Props {
   open: boolean;
   setOpen: (s: boolean) => void;
@@ -19,7 +18,7 @@ interface Props {
 
 export default function FormDialog({ open, setOpen }: Props) {
   const { inputText, setInputText, search } = useSearchProducts();
-
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const handleClose = () => {
     setOpen(false);
   };
@@ -63,10 +62,30 @@ export default function FormDialog({ open, setOpen }: Props) {
             <CircularProgress />
           </Box>
         )}
-        {!!search.result && <TreeList products={search.result} />}
+        {!!search.result && (
+          <TreeList
+            setSelectedProducts={setSelectedProducts}
+            selectedProducts={selectedProducts}
+            products={search.result}
+          />
+        )}
       </DialogContent>
-      <DialogActions>
-        <StyledButton text="Add" />
+      <DialogActions sx={{ justifyContent: "space-between", px: "22.5px" }}>
+        <Box sx={{ flex: 1 }}>
+          {selectedProducts.length} product
+          {selectedProducts.length > 1 ? `s` : null} selected
+        </Box>
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "end",
+            gap: "10px",
+          }}
+        >
+          <StyledButton text="Cancel" variant="outlined" color="info" />
+          <StyledButton text="Add" variant="outlined" />
+        </Box>
       </DialogActions>
     </Dialog>
   );

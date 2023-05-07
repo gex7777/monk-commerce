@@ -4,7 +4,7 @@ export interface Product {
   body_html: string;
   handle: string;
   options?: OptionsEntity[] | null;
-  variants?: VariantsEntity[] | null;
+  variants: VariantsEntity[];
   image: ImagesEntityOrImage;
   images?: ImagesEntityOrImage[] | null;
   admin_graphql_api_id: string;

@@ -3,10 +3,12 @@ import Checkbox from "@mui/material/Checkbox";
 import { Product } from "../ulits/interfaces";
 import { VariantsEntity } from "./../ulits/interfaces";
 import { Box } from "@mui/material";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 interface Props {
   products: Product[];
+  setSelectedProducts: Dispatch<SetStateAction<Product[]>>;
+  selectedProducts: Product[] | [];
 }
 
 interface ChildProps {
@@ -59,13 +61,19 @@ function Child({
   );
 }
 
-export default function TreeList({ products }: Props) {
-  const [productz, setProductz] = useState(products);
+export default function TreeList({
+  products,
+  selectedProducts,
+  setSelectedProducts,
+}: Props) {
+  const [productz, setProductz] = useState([...products]);
+  console.log(selectedProducts);
 
   function handleParentCheckEvent(
     e: React.ChangeEvent<HTMLInputElement>,
     id: number
   ) {
+    // Handle visual check state
     setProductz((prev) =>
       prev.map((product) => {
         if (product.id === id) {
@@ -80,6 +88,30 @@ export default function TreeList({ products }: Props) {
         return product;
       })
     );
+
+    //when checked: add
+    if (e.target.checked) {
+      //check if present
+      if (selectedProducts.some((product) => product.id === id)) {
+        setSelectedProducts((prev) =>
+          prev.filter((product) => product.id !== id)
+        );
+      }
+      let prods = [...products];
+      let productToAdd = prods.find((p) => p.id === id);
+
+      if (!!productToAdd) {
+        // null check beacuse typescript
+        let pta = productToAdd;
+
+        setSelectedProducts((prev) => [...prev, pta]);
+      }
+    } else {
+      // when unchecked remove
+      setSelectedProducts((prev) =>
+        prev.filter((product) => product.id !== id)
+      );
+    }
   }
 
   function handleChildCheckEvent(
@@ -87,15 +119,17 @@ export default function TreeList({ products }: Props) {
     id: number,
     parentId: number
   ) {
+    // Handle visual check state
+
     setProductz((prev) =>
       prev.map((product) => {
         if (product.id === parentId) {
           return {
             ...product,
+
             variants: product.variants?.map((variant) => {
-              if (variant.id === id) {
+              if (variant.id === id)
                 return { ...variant, checked: e.target.checked };
-              }
               return variant;
             }),
           };
@@ -103,15 +137,137 @@ export default function TreeList({ products }: Props) {
         return product;
       })
     );
+    //when checked:add
+    if (e.target.checked) {
+      //check if parent is present
+
+      if (selectedProducts.some((product) => product.id === parentId)) {
+        setSelectedProducts((prev) => {
+          return prev.map((product) => {
+            if (product.id === parentId) {
+              let prods = [...products];
+              let productToAdd = prods.find((p) => p.id === parentId);
+
+              let variantToAdd = productToAdd?.variants?.find(
+                (variant) => variant.id === id
+              );
+
+              if (!!variantToAdd) {
+                return {
+                  ...product,
+                  variants: [...product.variants, { ...variantToAdd }],
+                };
+              }
+            }
+            return product;
+          });
+        });
+
+        //if all children checked, then visually check parent
+        let trueLength = productz.find((p) => p.id == parentId)?.variants
+          .length;
+        let parentLength = selectedProducts.find((p) => p.id == parentId)
+          ?.variants.length;
+        if (!!trueLength && !!parentLength && trueLength - 1 === parentLength) {
+          setProductz((prev) =>
+            prev.map((p) => {
+              if (p.id === parentId) {
+                return { ...p, checked: true };
+              }
+              return p;
+            })
+          );
+        }
+      } else {
+        let prods = [...products];
+
+        let productToAdd = prods.filter((p) => p.id === parentId)[0];
+        let newproduct = {
+          ...productToAdd,
+          variants: productToAdd.variants.filter((v) => v.id === id),
+        };
+
+        setSelectedProducts((prev) => [...prev, newproduct]);
+      }
+    }
+    if (!e.target.checked) {
+      //when unchecked
+
+      //if one unchecked and parent was checked, then visually uncheck parent
+      let trueLength = productz.find((p) => p.id == parentId)?.variants.length;
+      let parentLength = selectedProducts.find((p) => p.id == parentId)
+        ?.variants.length;
+      if (!!trueLength && !!parentLength && trueLength === parentLength) {
+        setProductz((prev) =>
+          prev.map((p) => {
+            if (p.id === parentId) {
+              return { ...p, checked: false };
+            }
+            return p;
+          })
+        );
+      }
+      if (
+        //if last remove entire parent
+        selectedProducts.find((product) => product.id === parentId)?.variants
+          .length === 1
+      ) {
+        setProductz((prev) =>
+          prev.map((product) => {
+            if (product.id === parentId) {
+              return { ...product, checked: false };
+            }
+            return product;
+          })
+        );
+        setSelectedProducts((prev) =>
+          prev.filter((product) => product.id !== parentId)
+        );
+      }
+      //when unchecked: remove
+      if (!e.target.checked) {
+        setSelectedProducts((prev) =>
+          prev.map((product) => {
+            if (product.id === parentId) {
+              return {
+                ...product,
+                variants: product.variants.filter(
+                  (variant) => variant.id !== id
+                ),
+              };
+            }
+            return product;
+          })
+        );
+      }
+    }
   }
   function checkIntermediate(id: number): boolean {
-    let intermediate =
-      productz
-        .find((product) => product.id === id)
-        ?.variants?.some((variant) => variant.checked === false) &&
-      productz.find((product) => product.id === id)?.checked;
+    let booleanArray = productz
+      .find((product) => product.id === id)
+      ?.variants?.map((variant) => variant.checked);
+    let intermediate = booleanArray?.every(Boolean) == true ? false : true;
+    if (
+      booleanArray?.every((val) => val === false) ||
+      booleanArray?.every(
+        (val) =>
+          val === undefined ||
+          (booleanArray?.some((val) => val === false) &&
+            booleanArray?.some((val) => val !== true))
+      )
+    ) {
+      intermediate = false;
+    }
+
+    if (
+      booleanArray?.some((val) => val === true) &&
+      !booleanArray.every(Boolean)
+    ) {
+      intermediate = true;
+    }
     return intermediate ? intermediate : false;
   }
+
   return (
     <>
       {productz.map((product) => (
@@ -175,7 +331,9 @@ export default function TreeList({ products }: Props) {
                 key={variant.id}
                 variant={variant}
                 checked={variant.checked}
-                handleChildCheckEvent={handleChildCheckEvent}
+                handleChildCheckEvent={(e) =>
+                  handleChildCheckEvent(e, variant.id, variant.product_id)
+                }
               />
             ))
           )}

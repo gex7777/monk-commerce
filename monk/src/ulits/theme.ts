@@ -14,6 +14,10 @@ export const themeOptions: ThemeOptions = {
     text: {
       primary: "#202223",
     },
+    info: {
+      main: "rgba(0, 0, 0, 0.4)",
+      contrastText: "rgba(0, 0, 0, 0.6)",
+    },
   },
   typography: {
     fontFamily: "SF Pro Text",
