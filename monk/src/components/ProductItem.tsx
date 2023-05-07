@@ -1,10 +1,16 @@
 import { Box, Button, Paper, Stack } from "@mui/material";
-import React, { useState } from "react";
+import React, { Dispatch, HTMLProps, ReactNode, useState } from "react";
 import { ReactComponent as DragIcon } from "../assets/drag-icon.svg";
 import { ReactComponent as EditIcon } from "../assets/edit-icon.svg";
 import Popup from "./Popup";
 import StyledButton from "./StyledButton";
-export default function ProductItem() {
+import { IProduct } from "./ProductTable";
+import { ProductActions } from "../context/reducers";
+interface Props extends HTMLProps<HTMLDivElement> {
+  dispatch: Dispatch<ProductActions>;
+  product: IProduct;
+}
+export default function ProductItem({ dispatch, product }: Props) {
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => {
     setOpen(true);
@@ -40,7 +46,9 @@ export default function ProductItem() {
               pt: "7px",
             }}
           >
-            Select Product
+            {!!product.productDetails?.title
+              ? product.productDetails.title
+              : `Select Product`}
           </Box>
           <Box
             sx={{
@@ -57,7 +65,7 @@ export default function ProductItem() {
           </Box>
           {open && <Popup open={open} setOpen={setOpen} />}
         </Paper>
-        <StyledButton text="Add Discount" />
+        <StyledButton text="Add Discount" variant="contained" />
       </Stack>
     </>
   );

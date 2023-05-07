@@ -1,56 +1,25 @@
 import { Box, Button, Stack } from "@mui/material";
 import React, { useReducer } from "react";
 import ProductItem from "./ProductItem";
-type DiscountTypes = "flat" | "%off";
-interface Product {
+import { Product as ProductDetails } from "./../ulits/interfaces";
+import { AppContext } from "../context/context";
+import { DiscountTypes, Types } from "../context/reducers";
+
+export interface IProduct {
   id: string;
   discount?: {
     type: DiscountTypes;
     value: number;
   };
+  productDetails?: ProductDetails;
 }
-type Action = {
-  type: string;
-  id?: string;
-};
-const initialState = { products: [] as Product[] };
 
-function productReducer(
-  state: typeof initialState,
-  action: Action
-): typeof initialState {
-  switch (action.type) {
-    case "add-product": {
-      return {
-        ...state,
-        products: [
-          ...state.products,
-          {
-            id: Date.now().toString(),
-          },
-        ],
-      };
-    }
-    case "add-discount": {
-      return {
-        ...state,
-        products: state.products.map((p) => {
-          if (p.id === action.id) return { ...p, discount: p.discount };
-          else {
-            return p;
-          }
-        }),
-      };
-    }
-    default:
-      return state;
-  }
-}
 export default function ProductTable() {
-  const [state, dispatch] = useReducer(productReducer, initialState);
+  const { state, dispatch } = React.useContext(AppContext);
   function addProduct() {
     dispatch({
-      type: "add-product",
+      type: Types.Create,
+      payload: null,
     });
   }
   return (
@@ -91,7 +60,7 @@ export default function ProductTable() {
       </Stack>
       <>
         {state.products.map((p, idx) => (
-          <ProductItem key={p.id} />
+          <ProductItem key={p.id} dispatch={dispatch} product={p} />
         ))}
       </>
 
