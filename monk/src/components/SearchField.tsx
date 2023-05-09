@@ -1,6 +1,6 @@
 import { InputBase, styled } from "@mui/material";
 import { ReactComponent as SearchIcon } from "../assets/search-icon.svg";
-import React from "react";
+
 const Search = styled("div")({
   position: "relative",
   border: "1px solid #00000012",

@@ -79,7 +79,10 @@ export interface ProductsState {
 
 //reducer
 
-export const productReducer = (state: IProduct[], action: ProductActions) => {
+export const productReducer = (
+  state: IProduct[] | any[],
+  action: ProductActions
+) => {
   switch (action.type) {
     case Types.Create:
       return [
@@ -115,16 +118,14 @@ export const productReducer = (state: IProduct[], action: ProductActions) => {
           let productDetails = {
             ...product.productDetails,
             variants: product.productDetails?.variants.filter(
-              (variant) => variant.id !== action.payload.variantId
+              (variant: any) => variant.id !== action.payload.variantId
             ),
           };
 
-          if (!!productDetails)
-            return {
-              ...product,
-              productDetails: productDetails,
-            };
-          return { ...product };
+          return {
+            ...product,
+            productDetails: productDetails,
+          };
         }
 
         return product;
@@ -135,7 +136,7 @@ export const productReducer = (state: IProduct[], action: ProductActions) => {
         if (product.id === action.payload.id) {
           let productDetails = {
             ...product.productDetails,
-            variants: product.productDetails?.variants.map((variant) => {
+            variants: product.productDetails?.variants.map((variant: any) => {
               if (variant.id === action.payload.variantId) {
                 return { ...variant, discount: action.payload.discount };
               }
@@ -143,12 +144,10 @@ export const productReducer = (state: IProduct[], action: ProductActions) => {
             }),
           };
 
-          if (!!productDetails)
-            return {
-              ...product,
-              productDetails: productDetails,
-            };
-          return { ...product };
+          return {
+            ...product,
+            productDetails: productDetails,
+          };
         }
 
         return product;

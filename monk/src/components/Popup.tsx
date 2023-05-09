@@ -3,13 +3,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { Box, CircularProgress, IconButton, colors } from "@mui/material";
+import { Box, CircularProgress, IconButton } from "@mui/material";
 import { ReactComponent as CloseIcon } from "../assets/close-icon.svg";
 import SearchField from "./SearchField";
 import StyledButton from "./StyledButton";
 
 import TreeList from "./TreeList";
-import { useCallback, useRef, useState } from "react";
+import { useState } from "react";
 import { Product } from "../ulits/interfaces";
 import { AppContext } from "../context/context";
 import { Types } from "../context/reducers";
@@ -25,32 +25,13 @@ export default function FormDialog({ open, setOpen, id, index }: Props) {
   const [query, setQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
 
-  const { products, hasMore, loading, error } = useProductSearch(
-    query,
-    pageNumber
-  );
-  const [productz, setProductz] = useState([...products]);
+  const { products, hasMore, loading } = useProductSearch(query, pageNumber);
 
   const { dispatch } = React.useContext(AppContext);
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const handleClose = () => {
     setOpen(false);
   };
-  React.useEffect(() => setProductz(products), [products]);
-  const observer: any = useRef();
-  const lastBookElementRef = useCallback(
-    (node: any) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPageNumber((prevPageNumber) => prevPageNumber + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [loading, hasMore]
-  );
 
   function handleSearch(e: any) {
     setQuery(e.target.value);
@@ -104,7 +85,7 @@ export default function FormDialog({ open, setOpen, id, index }: Props) {
         sx={{ borderBottom: "0px", p: 0, minHeight: "50px" }}
         dividers
       >
-        <SearchField setSearchQuery={(q: string) => setQuery(q)} />
+        <SearchField setSearchQuery={(e) => handleSearch(e)} />
       </DialogContent>
       <DialogContent sx={{ p: 0, m: 0, height: "612px" }} dividers>
         {loading && (

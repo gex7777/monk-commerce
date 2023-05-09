@@ -1,9 +1,9 @@
-import { Box, Button, Divider, Stack } from "@mui/material";
-import React, { useReducer } from "react";
+import { Box, Button, Stack } from "@mui/material";
+import { useContext } from "react";
 import ProductItem from "./ProductItem";
 import { Product as ProductDetails } from "./../ulits/interfaces";
 import { AppContext } from "../context/context";
-import { DiscountTypes, Types } from "../context/reducers";
+import { Types } from "../context/reducers";
 import {
   DragDropContext,
   Droppable,
@@ -20,7 +20,7 @@ export interface IProduct {
 }
 
 export default function ProductTable() {
-  const { state, dispatch } = React.useContext(AppContext);
+  const { state, dispatch } = useContext(AppContext);
   console.log(state.products);
   function handleDrag(param: DropResult) {
     {
@@ -86,7 +86,7 @@ export default function ProductTable() {
       </Stack>
       <DragDropContext onDragEnd={handleDrag}>
         <Droppable droppableId="droppable-1">
-          {(provided, snapshot) => (
+          {(provided, _) => (
             <Stack gap={2} ref={provided.innerRef} {...provided.droppableProps}>
               {state.products.map((p, idx) => (
                 <>
@@ -95,7 +95,7 @@ export default function ProductTable() {
                     draggableId={`draggable-${p.id}`}
                     index={idx}
                   >
-                    {(provided, snapshot) => (
+                    {(provided, _) => (
                       <ProductItem
                         provided={provided}
                         idx={idx}

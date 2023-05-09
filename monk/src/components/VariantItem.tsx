@@ -1,11 +1,4 @@
-import {
-  Box,
-  Divider,
-  InputBase,
-  MenuItem,
-  Paper,
-  Select,
-} from "@mui/material";
+import { Box, InputBase, MenuItem, Paper, Select } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { ReactComponent as CloseIcon } from "../assets/close-icon2.svg";
 import { VariantsEntity } from "../ulits/interfaces";

@@ -5,7 +5,6 @@ import {
   MenuItem,
   Stack,
   Typography,
-  Paper,
 } from "@mui/material";
 
 import React, { Dispatch, HTMLProps, useEffect, useRef, useState } from "react";
@@ -273,7 +272,7 @@ export default function ProductItem({ product, idx, provided }: Props) {
           )}
         <DragDropContext onDragEnd={handleVariantDrag}>
           <Droppable droppableId="droppable-2">
-            {(provided, snapshot) => (
+            {(provided, _) => (
               <Stack
                 ref={provided.innerRef}
                 {...provided.droppableProps}
@@ -288,7 +287,7 @@ export default function ProductItem({ product, idx, provided }: Props) {
                       draggableId={`draggable-${variant.id}`}
                       index={idx}
                     >
-                      {(provided, snapshot) => (
+                      {(provided, _) => (
                         <VariantItem
                           variant={variant}
                           provided={provided}

@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { AppBar, Box, Container, Toolbar, Typography } from "@mui/material";
 
 import { ReactComponent as MonkLogo } from "../assets/logo.svg";
