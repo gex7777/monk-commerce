@@ -10,6 +10,7 @@ export default function useProductSearch(query: string, pageNumber: number) {
 
   useEffect(() => {
     setProducts([]);
+    console.log("fireed");
   }, [query]);
 
   useEffect(() => {
@@ -24,7 +25,8 @@ export default function useProductSearch(query: string, pageNumber: number) {
     })
       .then((res) => {
         setProducts((prevProducts) => {
-          return [...new Set([...prevProducts, ...res.data])];
+          if (!!res.data) return [...new Set([...prevProducts, ...res.data])];
+          else return [...new Set([...prevProducts])];
         });
         setHasMore(res.data.length > 0);
         setLoading(false);

@@ -33,8 +33,8 @@ export default function FormDialog({ open, setOpen, id, index }: Props) {
     setOpen(false);
   };
 
-  function handleSearch(e: any) {
-    setQuery(e.target.value);
+  function handleSearch(e: string) {
+    setQuery(e);
     setPageNumber(1);
   }
 
@@ -85,7 +85,7 @@ export default function FormDialog({ open, setOpen, id, index }: Props) {
         sx={{ borderBottom: "0px", p: 0, minHeight: "50px" }}
         dividers
       >
-        <SearchField setSearchQuery={(e) => handleSearch(e)} />
+        <SearchField setSearchQuery={handleSearch} />
       </DialogContent>
       <DialogContent sx={{ p: 0, m: 0, height: "612px" }} dividers>
         {loading && (
