@@ -89,22 +89,21 @@ export default function ProductTable() {
           {(provided, _) => (
             <Stack gap={2} ref={provided.innerRef} {...provided.droppableProps}>
               {state.products.map((p, idx) => (
-                <>
-                  <Draggable
-                    key={p.id}
-                    draggableId={`draggable-${p.id}`}
-                    index={idx}
-                  >
-                    {(provided, _) => (
-                      <ProductItem
-                        provided={provided}
-                        idx={idx}
-                        dispatch={dispatch}
-                        product={p}
-                      />
-                    )}
-                  </Draggable>
-                </>
+                <Draggable
+                  key={p.id}
+                  draggableId={`draggable-${p.id}`}
+                  index={idx}
+                >
+                  {(provided, _) => (
+                    <ProductItem
+                      key={p.id}
+                      provided={provided}
+                      idx={idx}
+                      dispatch={dispatch}
+                      product={p}
+                    />
+                  )}
+                </Draggable>
               ))}
               {provided.placeholder}
             </Stack>

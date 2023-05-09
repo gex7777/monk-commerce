@@ -368,9 +368,9 @@ export default function TreeList({
     <>
       {productz.map((product, index) => {
         if (productz.length === index + 1) {
-          return <Item product={product} />;
+          return <Item key={product.id} product={product} />;
         } else {
-          return <Item product={product} />;
+          return <Item key={product.id} product={product} />;
         }
       })}
     </>

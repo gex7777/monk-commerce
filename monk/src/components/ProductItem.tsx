@@ -289,6 +289,7 @@ export default function ProductItem({ product, idx, provided }: Props) {
                     >
                       {(provided, _) => (
                         <VariantItem
+                          key={variant.id}
                           variant={variant}
                           provided={provided}
                           id={product.id}
