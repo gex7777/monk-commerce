@@ -51,10 +51,10 @@ export default function useProductSearch(query: string, pageNumber: number) {
           } else return [...prevProducts];
         });
 
-        let totalresultsLength = removeDuplicateObjects(
-          [...products, ...res.data],
-          "id"
-        ).length;
+        // let totalresultsLength = removeDuplicateObjects(
+        //   [...products, ...res.data],
+        //   "id"
+        // ).length;
         setHasMore(true);
         setLoading(false);
       })

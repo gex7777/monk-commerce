@@ -256,7 +256,6 @@ export default function TreeList({
     return intermediate ? intermediate : false;
   }
   function Child({
-    checked,
     variant: { title, price, inventory_quantity, product_id, id },
     handleChildCheckEvent,
   }: ChildProps) {
