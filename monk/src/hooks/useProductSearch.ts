@@ -55,7 +55,7 @@ export default function useProductSearch(query: string, pageNumber: number) {
         //   [...products, ...res.data],
         //   "id"
         // ).length;
-        setHasMore(true);
+        setHasMore(res.data.length > 9);
         setLoading(false);
       })
       .catch((e) => {
