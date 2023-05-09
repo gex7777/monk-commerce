@@ -147,7 +147,7 @@ export const VariantItem = ({ variant, id, provided }: Props) => {
               >
                 <Select
                   IconComponent={() => (
-                    <Box sx={{ pr: "17px" }}>
+                    <Box sx={{ pr: "18px" }}>
                       <ChervonIcon />
                     </Box>
                   )}
@@ -190,7 +190,10 @@ export const VariantItem = ({ variant, id, provided }: Props) => {
             />
           )}
         </Box>
-        <Box onClick={() => deleteProductVariant(variant.id)}>
+        <Box
+          sx={{ cursor: "pointer" }}
+          onClick={() => deleteProductVariant(variant.id)}
+        >
           <CloseIcon />
         </Box>
       </Box>

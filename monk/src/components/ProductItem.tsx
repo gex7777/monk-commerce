@@ -214,7 +214,7 @@ export default function ProductItem({ product, idx, provided }: Props) {
           )}
         </Box>
         {state.products.length > 1 && (
-          <Box onClick={() => deleteProduct()}>
+          <Box sx={{ cursor: "pointer" }} onClick={() => deleteProduct()}>
             <CloseIcon />
           </Box>
         )}
