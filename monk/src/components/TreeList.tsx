@@ -28,46 +28,6 @@ interface ChildProps {
   ) => void;
 }
 
-function Child({
-  checked,
-  variant: { title, price, inventory_quantity, product_id, id },
-  handleChildCheckEvent,
-}: ChildProps) {
-  return (
-    <Box
-      sx={{
-        height: "61px",
-        pl: "60px",
-        width: "100%",
-        pr: "35px",
-        border: "1px solid #0000001A",
-        borderTop: "0px",
-        borderX: "0px",
-        display: "flex",
-        alignItems: "center",
-        gap: "15px",
-      }}
-    >
-      <Checkbox
-        checked={!!checked ? checked : false}
-        onChange={(e) => handleChildCheckEvent(e, id, product_id)}
-        disableFocusRipple
-        disableRipple
-        sx={{
-          "& .MuiSvgIcon-root": {
-            fontSize: 33,
-          },
-        }}
-      />
-      <Box sx={{ flex: 3 }}>{title}</Box>
-      <Box sx={{ textAlign: "right", flex: 2 }}>
-        {inventory_quantity} available
-      </Box>
-      <Box sx={{ flex: 1, textAlign: "right" }}>${price} </Box>
-    </Box>
-  );
-}
-
 export default function TreeList({
   products,
   selectedProducts,
@@ -77,22 +37,26 @@ export default function TreeList({
   setPageNumber,
 }: Props) {
   const [productz, setProductz] = useState(products);
-  console.log(selectedProducts, productz, products);
+
   React.useEffect(() => setProductz(products), [products]);
-  const observer: any = useRef();
-  const lastBookElementRef = React.useCallback(
-    (node: any) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPageNumber;
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [loading, hasMore]
-  );
+  const elementRef = useRef(null);
+  const onIntersection: IntersectionObserverCallback = (entries) => {
+    const firstEntry = entries[0];
+    if (firstEntry.isIntersecting) {
+      if (hasMore) setPageNumber();
+    }
+  };
+  React.useEffect(() => {
+    if (loading) return;
+
+    const observer = new IntersectionObserver(onIntersection);
+    if (observer && elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+    return () => {
+      observer.disconnect();
+    };
+  });
   function handleParentCheckEvent(
     e: React.ChangeEvent<HTMLInputElement>,
     id: number
@@ -291,10 +255,50 @@ export default function TreeList({
     }
     return intermediate ? intermediate : false;
   }
-
-  const Item: React.FC<ItemProps> = ({ product }) => {
+  function Child({
+    checked,
+    variant: { title, price, inventory_quantity, product_id, id },
+    handleChildCheckEvent,
+  }: ChildProps) {
     return (
-      <Box ref={lastBookElementRef} sx={{ width: "100%" }} key={product.id}>
+      <Box
+        sx={{
+          height: "61px",
+          pl: "60px",
+          width: "100%",
+          pr: "35px",
+          border: "1px solid #0000001A",
+          borderTop: "0px",
+          borderX: "0px",
+          display: "flex",
+          alignItems: "center",
+          gap: "15px",
+        }}
+      >
+        <Checkbox
+          checked={selectedProducts
+            .find((product) => product.id == product_id)
+            ?.variants.some((variant) => variant.id == id)}
+          onChange={(e) => handleChildCheckEvent(e, id, product_id)}
+          disableFocusRipple
+          disableRipple
+          sx={{
+            "& .MuiSvgIcon-root": {
+              fontSize: 33,
+            },
+          }}
+        />
+        <Box sx={{ flex: 3 }}>{title}</Box>
+        <Box sx={{ textAlign: "right", flex: 2 }}>
+          {inventory_quantity} available
+        </Box>
+        <Box sx={{ flex: 1, textAlign: "right" }}>${price} </Box>
+      </Box>
+    );
+  }
+  const Item: React.FC<ItemProps> = React.forwardRef(({ product }, ref) => {
+    return (
+      <Box sx={{ width: "100%" }} ref={ref} key={product.id}>
         <Box
           sx={{
             height: "61px",
@@ -312,7 +316,7 @@ export default function TreeList({
         >
           <Checkbox
             indeterminate={checkIntermediate(product.id)}
-            checked={!!product.checked ? product.checked : false}
+            checked={selectedProducts.some((prod) => prod.id === product.id)}
             onChange={(e) => handleParentCheckEvent(e, product.id)}
             disableFocusRipple
             disableRipple
@@ -362,14 +366,17 @@ export default function TreeList({
         )}
       </Box>
     );
-  };
+  });
 
   return (
     <>
       {productz.map((product, index) => {
         if (productz.length === index + 1) {
-          return <Item key={product.id} product={product} />;
+          console.log("last", product);
+
+          return <Item ref={elementRef} key={product.id} product={product} />;
         } else {
+          console.log("not last");
           return <Item key={product.id} product={product} />;
         }
       })}

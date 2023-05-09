@@ -10,7 +10,7 @@ export default function useProductSearch(query: string, pageNumber: number) {
 
   useEffect(() => {
     setProducts([]);
-    console.log("fireed");
+    console.log("clear");
   }, [query]);
 
   useEffect(() => {
@@ -24,11 +24,38 @@ export default function useProductSearch(query: string, pageNumber: number) {
       cancelToken: new axios.CancelToken((c) => (cancel = c)),
     })
       .then((res) => {
+        console.log(
+          res.data,
+          "page number:",
+          pageNumber,
+          products,
+          [
+            ...new Set(
+              [...products, ...res.data].map((e) => JSON.stringify(e))
+            ),
+          ].map((e) => JSON.parse(e))
+        );
+
         setProducts((prevProducts) => {
-          if (!!res.data) return [...new Set([...prevProducts, ...res.data])];
-          else return [...new Set([...prevProducts])];
+          if (!!res.data) {
+            const uniqueResult = removeDuplicateObjects(
+              [...prevProducts, ...res.data],
+              "id"
+            );
+            console.log(uniqueResult);
+            return [
+              ...new Set(
+                [...products, ...res.data].map((e) => JSON.stringify(e))
+              ),
+            ].map((e) => JSON.parse(e));
+          } else return [...prevProducts];
         });
-        setHasMore(res.data.length > 0);
+
+        let totalresultsLength = removeDuplicateObjects(
+          [...products, ...res.data],
+          "id"
+        ).length;
+        setHasMore(true);
         setLoading(false);
       })
       .catch((e) => {
@@ -39,4 +66,22 @@ export default function useProductSearch(query: string, pageNumber: number) {
   }, [query, pageNumber]);
 
   return { loading, error, products, hasMore };
+}
+function removeDuplicateObjects(array: any, property: any) {
+  const uniqueIds: any[] = [];
+
+  const unique = array.filter((element: any) => {
+    const isDuplicate = uniqueIds.includes(element[property]);
+    console.log(isDuplicate, isDuplicate ?? element.id);
+
+    if (!isDuplicate) {
+      uniqueIds.push(element[property]);
+
+      return true;
+    }
+
+    return false;
+  });
+
+  return unique;
 }
