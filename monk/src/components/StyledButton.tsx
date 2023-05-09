@@ -8,6 +8,8 @@ export default function StyledButton({ text, ...others }: Props) {
     <Button
       {...others}
       sx={{
+        flex: 1,
+        width: "100%",
         textTransform: "none",
         boxShadow: "none",
         height: "32px",

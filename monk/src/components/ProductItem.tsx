@@ -1,43 +1,121 @@
-import { Box, Button, Paper, Stack } from "@mui/material";
-import React, { Dispatch, HTMLProps, ReactNode, useState } from "react";
+import {
+  Box,
+  InputBase,
+  Select,
+  MenuItem,
+  Stack,
+  Typography,
+  Paper,
+} from "@mui/material";
+
+import React, { Dispatch, HTMLProps, useEffect, useRef, useState } from "react";
 import { ReactComponent as DragIcon } from "../assets/drag-icon.svg";
 import { ReactComponent as EditIcon } from "../assets/edit-icon.svg";
 import Popup from "./Popup";
 import StyledButton from "./StyledButton";
 import { IProduct } from "./ProductTable";
-import { ProductActions } from "../context/reducers";
+import { DiscountTypes, ProductActions, Types } from "../context/reducers";
+import { StyledPaper } from "./StyledPaper";
+import { ReactComponent as ChervonIcon } from "../assets/chervon-icon.svg";
+import { ReactComponent as CloseIcon } from "../assets/close-icon2.svg";
+import { AppContext } from "../context/context";
+import { VariantItem } from "./VariantItem";
+import { DraggableProvided } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
 interface Props extends HTMLProps<HTMLDivElement> {
   dispatch: Dispatch<ProductActions>;
   product: IProduct;
+  idx: number;
+  provided: DraggableProvided;
 }
-export default function ProductItem({ dispatch, product }: Props) {
+export interface IDiscount {
+  value: string;
+  type: string;
+}
+export default function ProductItem({ product, idx, provided }: Props) {
+  const { state, dispatch } = React.useContext(AppContext);
   const [open, setOpen] = useState(false);
+  const [showDiscount, setShowDiscount] = useState(false);
+  const [showVariants, setShowVariants] = useState(false);
+  const firstRender = useRef(true);
+  const [discount, setDiscount] = useState<IDiscount>({
+    value: "0",
+    type: DiscountTypes.Off,
+  });
+  const handleVariantDrag = (param: DropResult) => {
+    const srcI = param.source.index;
+    const desI = param.destination?.index;
+    let variants = product.productDetails?.variants;
+    if (desI && !!variants) {
+      variants.splice(desI, 0, variants.splice(srcI, 1)[0]);
+      console.log("rearage vriants", variants);
+
+      dispatch({
+        type: Types.RearrangeVariants,
+        payload: {
+          variants: variants,
+          id: product.id,
+        },
+      });
+    }
+  };
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    addDiscount();
+  }, [showDiscount, discount]);
+
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  function addDiscount() {
+    console.log("fired");
+
+    dispatch({
+      type: Types.AddDiscount,
+      payload: {
+        id: product.id,
+        discount: discount,
+      },
+    });
+  }
+
+  function deleteProduct() {
+    console.log(" delete fired");
+
+    dispatch({
+      type: Types.Delete,
+      payload: {
+        id: product.id,
+      },
+    });
+  }
+
   return (
-    <>
-      <Stack alignItems={"center"} gap={"16px"} direction={"row"}>
-        <DragIcon />
-        <div>1.</div>
-        <Paper
-          elevation={0}
-          sx={{
-            boxShadow: "0px 2px 4px 0px #0000001A",
-            display: "flex",
-
-            justifyContent: "space-between",
-            border: "1px solid #00000012",
-            minWidth: "215px",
-            borderRadius: "0",
-
-            height: "32px",
-            fontSize: "14px",
-          }}
-        >
+    <Box ref={provided.innerRef} {...provided.draggableProps}>
+      <Stack
+        alignItems={"center"}
+        gap={"16px"}
+        direction={"row"}
+        flexWrap={"wrap"}
+        sx={{ pb: "15px" }}
+      >
+        <Box {...provided.dragHandleProps}>
+          <DragIcon />
+        </Box>
+        <Box sx={{ minWidth: "14px" }}>{idx + 1}.</Box>
+        <StyledPaper>
           <Box
             sx={{
+              width: "215px",
               color: "#00000080",
               fontWeight: 400,
               fontSize: "14px",
@@ -46,9 +124,11 @@ export default function ProductItem({ dispatch, product }: Props) {
               pt: "7px",
             }}
           >
-            {!!product.productDetails?.title
-              ? product.productDetails.title
-              : `Select Product`}
+            <Typography noWrap>
+              {!!product.productDetails?.title
+                ? product.productDetails.title
+                : `Select Product`}
+            </Typography>
           </Box>
           <Box
             sx={{
@@ -63,10 +143,166 @@ export default function ProductItem({ dispatch, product }: Props) {
           >
             <EditIcon />
           </Box>
-          {open && <Popup open={open} setOpen={setOpen} />}
-        </Paper>
-        <StyledButton text="Add Discount" variant="contained" />
+          {open && (
+            <Popup open={open} setOpen={setOpen} id={product.id} index={idx} />
+          )}
+        </StyledPaper>
+        <Box
+          sx={{
+            width: "167px",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          {showDiscount ? (
+            <>
+              <StyledPaper>
+                <InputBase
+                  autoFocus
+                  type="numbers"
+                  value={discount.value}
+                  onChange={(e) => {
+                    setDiscount((prev) => ({
+                      ...prev,
+                      value: e.target.value,
+                    }));
+                  }}
+                  inputProps={{ "aria-label": "search" }}
+                  sx={{ fontSize: "14px", width: "69px", pl: "7px" }}
+                />
+              </StyledPaper>
+              <StyledPaper>
+                <Select
+                  IconComponent={() => (
+                    <Box sx={{ pr: "17px" }}>
+                      <ChervonIcon />
+                    </Box>
+                  )}
+                  sx={{
+                    fontSize: "14px",
+                    width: "95px",
+                    border: "none",
+                    boxShadow: "none",
+                    ".MuiOutlinedInput-notchedOutline": {
+                      border: 0,
+                      borderRadius: "0px",
+                    },
+                  }}
+                  value={
+                    product.discount?.type
+                      ? product.discount?.type
+                      : discount.type
+                  }
+                  onChange={(e) =>
+                    setDiscount((prev) => ({ ...prev, type: e.target.value }))
+                  }
+                >
+                  <MenuItem value={DiscountTypes.Off}>
+                    {DiscountTypes.Off}
+                  </MenuItem>
+                  <MenuItem value={DiscountTypes.Flat}>
+                    {DiscountTypes.Flat}
+                  </MenuItem>
+                </Select>
+              </StyledPaper>
+            </>
+          ) : (
+            <StyledButton
+              text="Add Discount"
+              onClick={() => setShowDiscount(true)}
+              variant="contained"
+            />
+          )}
+        </Box>
+        {state.products.length > 1 && (
+          <Box onClick={() => deleteProduct()}>
+            <CloseIcon />
+          </Box>
+        )}
+
+        {!!product.productDetails?.variants &&
+          product.productDetails?.variants.length > 1 && (
+            <Box
+              sx={{
+                textAlign: "right",
+                width: "100%",
+
+                color: (theme) => theme.palette.secondary.main,
+                cursor: "pointer",
+              }}
+              onClick={() => setShowVariants((prev) => !prev)}
+            >
+              {showVariants ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "right",
+                  }}
+                >
+                  <Typography
+                    sx={{ fontSize: "12px", textDecoration: "underline" }}
+                  >
+                    hide variants
+                  </Typography>
+                  <Typography
+                    sx={{
+                      transform: "rotate(180deg) ",
+                      fontSize: "12px",
+                    }}
+                  >
+                    v
+                  </Typography>
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    fontSize: "12px",
+                    display: "flex",
+                    justifyContent: "right",
+                  }}
+                >
+                  <Typography
+                    sx={{ fontSize: "12px", textDecoration: "underline" }}
+                  >
+                    show variants
+                  </Typography>
+                  <Typography sx={{ fontSize: "12px" }}>v</Typography>
+                </Box>
+              )}
+            </Box>
+          )}
+        <DragDropContext onDragEnd={handleVariantDrag}>
+          <Droppable droppableId="droppable-2">
+            {(provided, snapshot) => (
+              <Stack
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                sx={{ width: "100%", gap: "8px" }}
+              >
+                {showVariants &&
+                  !!product.productDetails?.variants.length &&
+                  product.productDetails?.variants.length > 1 &&
+                  product.productDetails?.variants.map((variant, idx) => (
+                    <Draggable
+                      key={variant.id}
+                      draggableId={`draggable-${variant.id}`}
+                      index={idx}
+                    >
+                      {(provided, snapshot) => (
+                        <VariantItem
+                          variant={variant}
+                          provided={provided}
+                          id={product.id}
+                        />
+                      )}
+                    </Draggable>
+                  ))}
+                {provided.placeholder}
+              </Stack>
+            )}
+          </Droppable>
+        </DragDropContext>
       </Stack>
-    </>
+    </Box>
   );
 }

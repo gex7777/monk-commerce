@@ -1,3 +1,5 @@
+import { IDiscount } from "../components/ProductItem";
+
 export interface Product {
   id: number;
   title: string;
@@ -27,6 +29,7 @@ export interface VariantsEntity {
   admin_graphql_api_id: string;
   option_values?: OptionValuesEntity[] | null;
   checked?: boolean;
+  discount?: IDiscount;
 }
 export interface OptionValuesEntity {
   id: number;

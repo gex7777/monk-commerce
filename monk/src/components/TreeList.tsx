@@ -3,12 +3,19 @@ import Checkbox from "@mui/material/Checkbox";
 import { Product } from "../ulits/interfaces";
 import { VariantsEntity } from "./../ulits/interfaces";
 import { Box } from "@mui/material";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 
 interface Props {
   products: Product[];
   setSelectedProducts: Dispatch<SetStateAction<Product[]>>;
   selectedProducts: Product[] | [];
+  hasMore: boolean;
+  setPageNumber: () => void;
+  loading: boolean;
+}
+interface ItemProps {
+  product: Product;
+  ref?: any;
 }
 
 interface ChildProps {
@@ -65,10 +72,27 @@ export default function TreeList({
   products,
   selectedProducts,
   setSelectedProducts,
+  loading,
+  hasMore,
+  setPageNumber,
 }: Props) {
-  const [productz, setProductz] = useState([...products]);
-  console.log(selectedProducts);
-
+  const [productz, setProductz] = useState(products);
+  console.log(selectedProducts, productz, products);
+  React.useEffect(() => setProductz(products), [products]);
+  const observer: any = useRef();
+  const lastBookElementRef = React.useCallback(
+    (node: any) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPageNumber;
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
   function handleParentCheckEvent(
     e: React.ChangeEvent<HTMLInputElement>,
     id: number
@@ -268,77 +292,87 @@ export default function TreeList({
     return intermediate ? intermediate : false;
   }
 
-  return (
-    <>
-      {productz.map((product) => (
-        <Box sx={{ width: "100%" }} key={product.id}>
-          <Box
+  const Item: React.FC<ItemProps> = ({ product }) => {
+    return (
+      <Box ref={lastBookElementRef} sx={{ width: "100%" }} key={product.id}>
+        <Box
+          sx={{
+            height: "61px",
+            pl: "19px",
+            width: "100%",
+            m: 0,
+            border: "1px solid #0000001A",
+            borderTop: "0px",
+            borderX: "0px",
+            display: "flex",
+            alignItems: "center",
+            gap: "15px",
+            pr: "35px",
+          }}
+        >
+          <Checkbox
+            indeterminate={checkIntermediate(product.id)}
+            checked={!!product.checked ? product.checked : false}
+            onChange={(e) => handleParentCheckEvent(e, product.id)}
+            disableFocusRipple
+            disableRipple
             sx={{
-              height: "61px",
-              pl: "19px",
-              width: "100%",
-              m: 0,
-              border: "1px solid #0000001A",
-              borderTop: "0px",
-              borderX: "0px",
-              display: "flex",
-              alignItems: "center",
-              gap: "15px",
-              pr: "35px",
+              "& .MuiSvgIcon-root": {
+                fontSize: 33,
+                strokeWidth: "1px",
+              },
             }}
-          >
-            <Checkbox
-              indeterminate={checkIntermediate(product.id)}
-              checked={!!product.checked ? product.checked : false}
-              onChange={(e) => handleParentCheckEvent(e, product.id)}
-              disableFocusRipple
-              disableRipple
-              sx={{
-                "& .MuiSvgIcon-root": {
-                  fontSize: 33,
-                  strokeWidth: "1px",
-                },
-              }}
-            />
+          />
 
-            <img
-              style={{
-                objectFit: "cover",
-                height: "36px",
-                width: "36px",
-                borderRadius: "4px",
-              }}
-              src={product.image.src}
-            />
+          <img
+            style={{
+              objectFit: "cover",
+              height: "36px",
+              width: "36px",
+              borderRadius: "4px",
+            }}
+            src={product.image.src}
+          />
 
-            <Box sx={{ fontSize: "16px" }}> {product.title}</Box>
-            {product.variants?.length === 1 && (
-              <>
-                <Box sx={{ textAlign: "right", flex: 2 }}>
-                  {product.variants[0]?.inventory_quantity} available
-                </Box>
-                <Box sx={{ flex: 1, textAlign: "right" }}>
-                  ${product.variants[0]?.price}
-                </Box>
-              </>
-            )}
-          </Box>
-          {product.variants?.length === 1 ? (
-            <></>
-          ) : (
-            product.variants?.map((variant: VariantsEntity) => (
-              <Child
-                key={variant.id}
-                variant={variant}
-                checked={variant.checked}
-                handleChildCheckEvent={(e) =>
-                  handleChildCheckEvent(e, variant.id, variant.product_id)
-                }
-              />
-            ))
+          <Box sx={{ fontSize: "16px" }}> {product.title}</Box>
+          {product.variants?.length === 1 && (
+            <>
+              <Box sx={{ textAlign: "right", flex: 2 }}>
+                {product.variants[0]?.inventory_quantity} available
+              </Box>
+              <Box sx={{ flex: 1, textAlign: "right" }}>
+                ${product.variants[0]?.price}
+              </Box>
+            </>
           )}
         </Box>
-      ))}
+        {product.variants?.length === 1 ? (
+          <></>
+        ) : (
+          product.variants?.map((variant: VariantsEntity) => (
+            <Child
+              key={variant.id}
+              variant={variant}
+              checked={variant.checked}
+              handleChildCheckEvent={(e) =>
+                handleChildCheckEvent(e, variant.id, variant.product_id)
+              }
+            />
+          ))
+        )}
+      </Box>
+    );
+  };
+
+  return (
+    <>
+      {productz.map((product, index) => {
+        if (productz.length === index + 1) {
+          return <Item product={product} />;
+        } else {
+          return <Item product={product} />;
+        }
+      })}
     </>
   );
 }

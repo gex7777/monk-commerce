@@ -8,7 +8,7 @@ export interface ProductsContextType {
 }
 
 const initialState = {
-  products: [],
+  products: [{ id: Date.now() }],
 };
 
 const AppContext = createContext<{

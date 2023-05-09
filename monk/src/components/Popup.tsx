@@ -7,22 +7,80 @@ import { Box, CircularProgress, IconButton, colors } from "@mui/material";
 import { ReactComponent as CloseIcon } from "../assets/close-icon.svg";
 import SearchField from "./SearchField";
 import StyledButton from "./StyledButton";
-import { useSearchProducts } from "../hooks/useFetchProducts";
+
 import TreeList from "./TreeList";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Product } from "../ulits/interfaces";
+import { AppContext } from "../context/context";
+import { Types } from "../context/reducers";
+import useProductSearch from "./../hooks/useProductSearch";
 interface Props {
   open: boolean;
   setOpen: (s: boolean) => void;
+  id: number;
+  index: number;
 }
 
-export default function FormDialog({ open, setOpen }: Props) {
-  const { inputText, setInputText, search } = useSearchProducts();
+export default function FormDialog({ open, setOpen, id, index }: Props) {
+  const [query, setQuery] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const { products, hasMore, loading, error } = useProductSearch(
+    query,
+    pageNumber
+  );
+  const [productz, setProductz] = useState([...products]);
+
+  const { dispatch } = React.useContext(AppContext);
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const handleClose = () => {
     setOpen(false);
   };
-  console.log(search);
+  React.useEffect(() => setProductz(products), [products]);
+  const observer: any = useRef();
+  const lastBookElementRef = useCallback(
+    (node: any) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPageNumber((prevPageNumber) => prevPageNumber + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
+
+  function handleSearch(e: any) {
+    setQuery(e.target.value);
+    setPageNumber(1);
+  }
+
+  const handleAddProducts = async () => {
+    console.log("from ad products", selectedProducts, index);
+
+    selectedProducts.forEach(async (product, idx) => {
+      if (idx === 0)
+        dispatch({
+          type: Types.AddProduct,
+          payload: {
+            product: product,
+            id: id,
+          },
+        });
+      else
+        dispatch({
+          type: Types.CreateAfterID,
+          payload: {
+            idx: index,
+            product: { id: Date.now() + idx, productDetails: product },
+          },
+        });
+    });
+    handleClose();
+  };
+  console.log(products);
   return (
     <Dialog
       scroll={"paper"}
@@ -46,10 +104,10 @@ export default function FormDialog({ open, setOpen }: Props) {
         sx={{ borderBottom: "0px", p: 0, minHeight: "50px" }}
         dividers
       >
-        <SearchField setSearchQuery={(q: string) => setInputText(q)} />
+        <SearchField setSearchQuery={(q: string) => setQuery(q)} />
       </DialogContent>
       <DialogContent sx={{ p: 0, m: 0, height: "612px" }} dividers>
-        {search.loading && (
+        {loading && (
           <Box
             sx={{
               display: "flex",
@@ -62,11 +120,15 @@ export default function FormDialog({ open, setOpen }: Props) {
             <CircularProgress />
           </Box>
         )}
-        {!!search.result && (
+
+        {!!products && (
           <TreeList
+            loading={loading}
+            setPageNumber={() => setPageNumber((prev) => prev + 1)}
+            hasMore={hasMore}
             setSelectedProducts={setSelectedProducts}
             selectedProducts={selectedProducts}
-            products={search.result}
+            products={products}
           />
         )}
       </DialogContent>
@@ -83,8 +145,18 @@ export default function FormDialog({ open, setOpen }: Props) {
             gap: "10px",
           }}
         >
-          <StyledButton text="Cancel" variant="outlined" color="info" />
-          <StyledButton text="Add" variant="outlined" />
+          <StyledButton
+            text="Cancel"
+            variant="outlined"
+            color="info"
+            onClick={handleClose}
+          />
+          <StyledButton
+            text="Add"
+            variant="contained"
+            onClick={handleAddProducts}
+            disabled={selectedProducts.length < 1}
+          />
         </Box>
       </DialogActions>
     </Dialog>
