@@ -50,7 +50,7 @@ export default function ProductItem({ product, idx, provided }: Props) {
     const srcI = param.source.index;
     const desI = param.destination?.index;
     let variants = product.productDetails?.variants;
-    if (desI && !!variants) {
+    if ((desI || desI === 0) && !!variants) {
       variants.splice(desI, 0, variants.splice(srcI, 1)[0]);
       console.log("rearage vriants", variants);
 

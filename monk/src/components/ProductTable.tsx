@@ -29,7 +29,7 @@ export default function ProductTable() {
       const srcI = param.source.index;
       const desI = param.destination?.index;
       let products = state.products;
-      if (desI) {
+      if (desI || desI == 0) {
         products.splice(desI, 0, products.splice(srcI, 1)[0]);
         console.log("rearage", products);
 
