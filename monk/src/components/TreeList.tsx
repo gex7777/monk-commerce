@@ -4,7 +4,7 @@ import { Product } from "../ulits/interfaces";
 import { VariantsEntity } from "./../ulits/interfaces";
 import { Box } from "@mui/material";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
-
+import { v4 as uuid } from "uuid";
 interface Props {
   products: Product[];
   setSelectedProducts: Dispatch<SetStateAction<Product[]>>;
@@ -21,6 +21,7 @@ interface ItemProps {
 interface ChildProps {
   variant: VariantsEntity;
   checked?: boolean;
+  ref?: any;
   handleChildCheckEvent: (
     e: React.ChangeEvent<HTMLInputElement>,
     id: number,
@@ -255,116 +256,195 @@ export default function TreeList({
     }
     return intermediate ? intermediate : false;
   }
-  function Child({
-    variant: { title, price, inventory_quantity, product_id, id },
-    handleChildCheckEvent,
-  }: ChildProps) {
-    return (
-      <Box
-        sx={{
-          height: "61px",
-          pl: "60px",
-          width: "100%",
-          pr: "35px",
-          border: "1px solid #0000001A",
-          borderTop: "0px",
-          borderX: "0px",
-          display: "flex",
-          alignItems: "center",
-          gap: "15px",
-        }}
-      >
-        <Checkbox
-          checked={selectedProducts
-            .find((product) => product.id == product_id)
-            ?.variants.some((variant) => variant.id == id)}
-          onChange={(e) => handleChildCheckEvent(e, id, product_id)}
-          disableFocusRipple
-          disableRipple
-          sx={{
-            "& .MuiSvgIcon-root": {
-              fontSize: 33,
-            },
-          }}
-        />
-        <Box sx={{ flex: 3 }}>{title}</Box>
-        <Box sx={{ textAlign: "right", flex: 2 }}>
-          {inventory_quantity} available
-        </Box>
-        <Box sx={{ flex: 1, textAlign: "right" }}>${price} </Box>
-      </Box>
-    );
-  }
-  const Item: React.FC<ItemProps> = React.forwardRef(({ product }, ref) => {
-    return (
-      <Box sx={{ width: "100%" }} ref={ref} key={product.id}>
+  const Child: React.FC<ChildProps> = React.forwardRef(
+    (
+      {
+        variant: { title, price, inventory_quantity, product_id, id },
+        handleChildCheckEvent,
+      },
+      ref
+    ) => {
+      return (
         <Box
+          ref={ref}
           sx={{
             height: "61px",
-            pl: "19px",
+            pl: "60px",
             width: "100%",
-            m: 0,
+            pr: "35px",
             border: "1px solid #0000001A",
             borderTop: "0px",
             borderX: "0px",
             display: "flex",
             alignItems: "center",
             gap: "15px",
-            pr: "35px",
           }}
         >
           <Checkbox
-            indeterminate={checkIntermediate(product.id)}
-            checked={selectedProducts.some((prod) => prod.id === product.id)}
-            onChange={(e) => handleParentCheckEvent(e, product.id)}
+            checked={selectedProducts
+              .find((product) => product.id == product_id)
+              ?.variants.some((variant) => variant.id == id)}
+            onChange={(e) => handleChildCheckEvent(e, id, product_id)}
             disableFocusRipple
             disableRipple
             sx={{
               "& .MuiSvgIcon-root": {
                 fontSize: 33,
-                strokeWidth: "1px",
               },
             }}
           />
-
-          <img
-            style={{
-              objectFit: "cover",
-              height: "36px",
-              width: "36px",
-              borderRadius: "4px",
+          <Box sx={{ flex: 3 }}>{title}</Box>
+          <Box sx={{ textAlign: "right", flex: 2 }}>
+            {inventory_quantity} available
+          </Box>
+          <Box sx={{ flex: 1, textAlign: "right" }}>${price} </Box>
+        </Box>
+      );
+    }
+  );
+  const Item: React.FC<ItemProps> = React.forwardRef(({ product }, ref) => {
+    if (product.variants.length == 1)
+      return (
+        <Box sx={{ width: "100%" }} ref={ref} key={uuid()}>
+          <Box
+            sx={{
+              height: "61px",
+              pl: "19px",
+              width: "100%",
+              m: 0,
+              border: "1px solid #0000001A",
+              borderTop: "0px",
+              borderX: "0px",
+              display: "flex",
+              alignItems: "center",
+              gap: "15px",
+              pr: "35px",
             }}
-            src={product.image.src}
-          />
+          >
+            <Checkbox
+              indeterminate={checkIntermediate(product.id)}
+              checked={selectedProducts.some((prod) => prod.id === product.id)}
+              onChange={(e) => handleParentCheckEvent(e, product.id)}
+              disableFocusRipple
+              disableRipple
+              sx={{
+                "& .MuiSvgIcon-root": {
+                  fontSize: 33,
+                  strokeWidth: "1px",
+                },
+              }}
+            />
 
-          <Box sx={{ fontSize: "16px" }}> {product.title}</Box>
-          {product.variants?.length === 1 && (
-            <>
-              <Box sx={{ textAlign: "right", flex: 2 }}>
-                {product.variants[0]?.inventory_quantity} available
-              </Box>
-              <Box sx={{ flex: 1, textAlign: "right" }}>
-                ${product.variants[0]?.price}
-              </Box>
-            </>
+            <img
+              style={{
+                objectFit: "cover",
+                height: "36px",
+                width: "36px",
+                borderRadius: "4px",
+              }}
+              src={product.image.src}
+            />
+
+            <Box sx={{ fontSize: "16px" }}> {product.title}</Box>
+            {product.variants?.length === 1 && (
+              <>
+                <Box sx={{ textAlign: "right", flex: 2 }}>
+                  {product.variants[0]?.inventory_quantity} available
+                </Box>
+                <Box sx={{ flex: 1, textAlign: "right" }}>
+                  ${product.variants[0]?.price}
+                </Box>
+              </>
+            )}
+          </Box>
+          {product.variants?.length === 1 ? (
+            <></>
+          ) : (
+            product.variants?.map((variant: VariantsEntity) => (
+              <Child
+                key={uuid()}
+                variant={variant}
+                checked={variant.checked}
+                handleChildCheckEvent={(e) =>
+                  handleChildCheckEvent(e, variant.id, variant.product_id)
+                }
+              />
+            ))
           )}
         </Box>
-        {product.variants?.length === 1 ? (
-          <></>
-        ) : (
-          product.variants?.map((variant: VariantsEntity) => (
-            <Child
-              key={variant.id}
-              variant={variant}
-              checked={variant.checked}
-              handleChildCheckEvent={(e) =>
-                handleChildCheckEvent(e, variant.id, variant.product_id)
-              }
+      );
+    else {
+      return (
+        <Box sx={{ width: "100%" }} key={uuid()}>
+          <Box
+            sx={{
+              height: "61px",
+              pl: "19px",
+              width: "100%",
+              m: 0,
+              border: "1px solid #0000001A",
+              borderTop: "0px",
+              borderX: "0px",
+              display: "flex",
+              alignItems: "center",
+              gap: "15px",
+              pr: "35px",
+            }}
+          >
+            <Checkbox
+              indeterminate={checkIntermediate(product.id)}
+              checked={selectedProducts.some((prod) => prod.id === product.id)}
+              onChange={(e) => handleParentCheckEvent(e, product.id)}
+              disableFocusRipple
+              disableRipple
+              sx={{
+                "& .MuiSvgIcon-root": {
+                  fontSize: 33,
+                  strokeWidth: "1px",
+                },
+              }}
             />
-          ))
-        )}
-      </Box>
-    );
+
+            <img
+              style={{
+                objectFit: "cover",
+                height: "36px",
+                width: "36px",
+                borderRadius: "4px",
+              }}
+              src={product.image.src}
+            />
+
+            <Box sx={{ fontSize: "16px" }}> {product.title}</Box>
+            {product.variants?.length === 1 && (
+              <>
+                <Box sx={{ textAlign: "right", flex: 2 }}>
+                  {product.variants[0]?.inventory_quantity} available
+                </Box>
+                <Box sx={{ flex: 1, textAlign: "right" }}>
+                  ${product.variants[0]?.price}
+                </Box>
+              </>
+            )}
+          </Box>
+          {product.variants?.length === 1 ? (
+            <></>
+          ) : (
+            product.variants?.map((variant: VariantsEntity) => (
+              <Child
+                ref={ref}
+                key={uuid()}
+                variant={variant}
+                checked={variant.checked}
+                handleChildCheckEvent={(e) =>
+                  handleChildCheckEvent(e, variant.id, variant.product_id)
+                }
+              />
+            ))
+          )}
+        </Box>
+      );
+    }
   });
 
   return (
@@ -373,10 +453,10 @@ export default function TreeList({
         if (productz.length === index + 1) {
           console.log("last", product);
 
-          return <Item ref={elementRef} key={product.id} product={product} />;
+          return <Item ref={elementRef} key={uuid()} product={product} />;
         } else {
           console.log("not last");
-          return <Item key={product.id} product={product} />;
+          return <Item key={uuid()} product={product} />;
         }
       })}
     </>

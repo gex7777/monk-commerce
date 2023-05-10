@@ -21,6 +21,8 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
     "use-constant": "^1.1.1",
+    "uuid": "^9.0.0",
+    "uuidv4": "^6.2.13",
     "vite-plugin-svgr": "^2.4.0"
   },
   "devDependencies": {
