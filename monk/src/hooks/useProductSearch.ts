@@ -43,11 +43,7 @@ export default function useProductSearch(query: string, pageNumber: number) {
               "id"
             );
             console.log(uniqueResult);
-            return [
-              ...new Set(
-                [...products, ...res.data].map((e) => JSON.stringify(e))
-              ),
-            ].map((e) => JSON.parse(e));
+            return [...products, ...res.data];
           } else return [...prevProducts];
         });
 
@@ -55,7 +51,7 @@ export default function useProductSearch(query: string, pageNumber: number) {
         //   [...products, ...res.data],
         //   "id"
         // ).length;
-        setHasMore(res.data.length > 10);
+        setHasMore(res.data.length > 9);
         setLoading(false);
       })
       .catch((e) => {
